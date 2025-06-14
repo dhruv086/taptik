@@ -1,0 +1,84 @@
+import cloudinary from "../lib/cloudinary.js";
+import { User } from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { AsyncHandler } from "../utils/AsyncHandler.js";
+
+import { Message} from "../models/message.model.js"
+
+const getAllUsers =  AsyncHandler(async(req,res)=>{
+
+  const userId = req.user._id
+  const filteredUser = await User.find({_id:{$ne:userId}}).select("-password");
+
+  // if(!filteredUser || filteredUser ===0){
+  //   throw new ApiError(400,"error while fetching users")
+  // }
+  res
+  .status(200)
+  .json(
+    new ApiResponse(200,filteredUser,"all users fetched successfully")
+  )
+
+})
+
+
+const getMessages = AsyncHandler(async(req,res)=>{
+  const {id:userTochatId} = req.params
+  const userId = req.user._id
+
+  const userExists  = await User.findById(userTochatId)
+  if(!userExists){
+    throw new ApiError(400,"user to chat to does not exist")
+  }
+  const messages = await Message.find({
+    $or:[
+      {senderId:userId,receiverId:userTochatId},
+      {senderId:userTochatId,receiverId:userId}
+    ]
+  })
+
+  // if(!messages||messages.length===0){
+  //   throw new ApiError(400,"error in fetching all the messages")
+  // }
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200,messages,"all messages are fetched successfully")
+  )
+  
+})
+
+const sendMessage = AsyncHandler(async(req,res)=>{
+  const {text,image}= req.body
+  const {id:receiverId}=req.params
+  const userId = req.user._id
+
+  if(!text||!image){
+    throw new ApiError(400,"text or image is required")
+  }
+  let imageUrl;
+  if(image){
+    const isUploaded = await cloudinary.uploader.upload(image);
+    imageUrl = isUploaded.secure_url
+  }
+  const sendMessage = await Message.create({
+    senderId,
+    userId,
+    text,
+    image
+  })
+  if(!sendMessage){
+    throw new ApiError(400,"error in creating new message")
+  }
+  res
+  .status(200)
+  .json(200,sendMessage,"message sent successfully")
+})
+
+export {
+  getAllUsers,
+  getMessages,
+  sendMessage
+}

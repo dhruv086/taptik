@@ -1,3 +1,4 @@
+import cloudinary from "../lib/cloudinary.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -100,7 +101,46 @@ const logout =  AsyncHandler(async(req,res)=>{
 })
 
 const updateProfile = AsyncHandler(async(req,res)=>{
-  
+  const {profilePic} = req.body
+
+  const userId = req.user._id
+
+  if(!profilePic){
+    throw new ApiError(400,"please provide profile pic")
+  }
+
+  const user= await User.findById(userId)
+
+  if(!user){
+    throw new ApiError(400,"user does not exist")
+  }
+
+  const isUploaded = await cloudinary.uploader.upload(profilePic)
+  if(!isUploaded){
+    throw new ApiError(400,"error in uploading file to cloudinary")
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId,{profilePic:isUploaded.secure_url},{new:true})
+
+  if(!updatedUser){
+    throw new ApiError(400,"error in updating file")
+  }
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200,updatedUser,"profile pic updated successfully")
+  )
+})
+
+
+const getUser =  AsyncHandler(async(req,res)=>{
+  try{
+    res.status(200).json(req.user)
+  }catch(error){
+    console.log("error in checkAuth controller",error.message)
+    throw new ApiError(400,"internal server error")
+  }
 })
 
 
@@ -108,5 +148,6 @@ export {
   signUp,
   login,
   logout,
-  updateProfile
+  updateProfile,
+  getUser
 }

@@ -3,8 +3,8 @@ import { User } from "../models/user.model.js"
 import { AsyncHandler } from "../utils/AsyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 
-const VerifyToken = AsyncHandler(async(req,res)=>{
-  const token = req.cookie.token
+const VerifyToken = AsyncHandler(async(req,res,next)=>{
+  const token = req.cookies.token
 
   try {
     if(!token){
