@@ -17,6 +17,10 @@ const messageSchema = new mongoose.Schema({
   image:{
     type:String,
   },
+  iv:{
+    type:String,
+    required:true,
+  }
 },{timestamps:true})
 
 export const Message = mongoose.model("Message",messageSchema)

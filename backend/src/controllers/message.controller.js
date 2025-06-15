@@ -5,6 +5,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 
 import { Message} from "../models/message.model.js"
+import { encrypt } from "../lib/encryption.js";
+import { decrypt } from "dotenv";
 
 const getAllUsers =  AsyncHandler(async(req,res)=>{
 
@@ -38,6 +40,11 @@ const getMessages = AsyncHandler(async(req,res)=>{
     ]
   })
 
+  const decryptedMessages = messages.map((message)=>({
+    ...message.toObject(),
+    text:decrypt(message.text,message.iv),
+  }))
+
   // if(!messages||messages.length===0){
   //   throw new ApiError(400,"error in fetching all the messages")
   // }
@@ -45,7 +52,7 @@ const getMessages = AsyncHandler(async(req,res)=>{
   return res
   .status(200)
   .json(
-    new ApiResponse(200,messages,"all messages are fetched successfully")
+    new ApiResponse(200,decryptedMessages,"all messages are fetched successfully")
   )
   
 })
@@ -63,11 +70,14 @@ const sendMessage = AsyncHandler(async(req,res)=>{
     const isUploaded = await cloudinary.uploader.upload(image);
     imageUrl = isUploaded.secure_url
   }
+
+  const {encryptedText,iv} = encrypt(text)
   const sendMessage = await Message.create({
-    senderId,
     userId,
-    text,
-    image
+    receiverId,
+    text:encryptedText,
+    image,
+    iv,
   })
   if(!sendMessage){
     throw new ApiError(400,"error in creating new message")
