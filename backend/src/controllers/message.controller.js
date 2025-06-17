@@ -8,21 +8,24 @@ import { Message} from "../models/message.model.js"
 import { encrypt } from "../lib/encryption.js";
 import { decrypt } from "dotenv";
 
-const getAllUsers =  AsyncHandler(async(req,res)=>{
+const getAllUsers = AsyncHandler(async (req, res) => {
+  if (!req.user?._id) {
+    throw new ApiError(401, "User not authenticated");
+  }
 
-  const userId = req.user._id
-  const filteredUser = await User.find({_id:{$ne:userId}}).select("-password");
-
-  // if(!filteredUser || filteredUser ===0){
-  //   throw new ApiError(400,"error while fetching users")
-  // }
-  res
-  .status(200)
-  .json(
-    new ApiResponse(200,filteredUser,"all users fetched successfully")
-  )
-
-})
+  const userId = req.user._id;
+  const filteredUsers = await User.find({ _id: { $ne: userId } }).select("-password");
+  if (!filteredUsers) {
+    throw new ApiError(500, "Error while fetching users");
+  }
+  
+  // console.log(filteredUsers)
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, filteredUsers, "All users fetched successfully")
+    );
+});
 
 
 const getMessages = AsyncHandler(async(req,res)=>{

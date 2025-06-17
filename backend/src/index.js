@@ -22,7 +22,7 @@ app.use(cors({
 
 
 app.use("/api/auth",authRoute)
-app.use("/api/message",messageRoute)
+app.use("/api/messages",messageRoute)
 
 app.listen(process.env.PORT,()=>{
   console.log("server is running",process.env.PORT)
