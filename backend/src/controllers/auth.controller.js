@@ -23,9 +23,9 @@ const generateToken = (userId,res)=>{
 }
 
 const signUp = AsyncHandler(async(req,res)=>{
-  const {fullname,email,password}=req.body
+  const {fullname,email,password,username}=req.body
  
-    if(!fullname||!email||!password){
+    if(!fullname||!email||!password||!username){
       throw new ApiError(400,"all fields are required")
     }
 
@@ -37,6 +37,11 @@ const signUp = AsyncHandler(async(req,res)=>{
     if(user){
       throw new ApiError(400,"user with this email already exist")
     }
+    const usernameExists = await User.findOne({username})
+
+    if(usernameExists){
+      throw new ApiError(400,"user with this email already exists")
+    }
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password,salt)
     
@@ -44,6 +49,7 @@ const signUp = AsyncHandler(async(req,res)=>{
       fullname,
       email,
       password:hashedPassword,
+      username,
     })
 
     if(!newUser){
@@ -56,10 +62,6 @@ const signUp = AsyncHandler(async(req,res)=>{
     .json(
       new ApiResponse(200,newUser,"new user signedUp successfully")
     )
-
-
-
-
 
 })
 
@@ -141,6 +143,14 @@ const getUser =  AsyncHandler(async(req,res)=>{
     console.log("error in checkAuth controller",error.message)
     throw new ApiError(400,"internal server error")
   }
+})
+
+
+
+
+const findUser = AsyncHandler(async(req,res)=>{
+  const {userName} = req.body
+  
 })
 
 

@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useAuthStore } from '../store/useAuthStore'
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User ,CircleUserRound} from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User , CircleUserRound } from 'lucide-react';
 import { Link } from "react-router-dom";
 import AuthImagePattern from '../components/authImagePattern';
-import toast,{Toaster} from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -11,36 +11,33 @@ function SignUpPage() {
     fullname: '',
     email: '',
     password: '',
+    username: '',
   })
-  const {signup,isSigningUp} = useAuthStore();
-  const validateForm=()=>{
-    if(!formData.fullname.trim())return toast.error("full name is required");
-    if(!formData.email.trim())return toast.error("Email is required");
+  const { signup, isSigningUp } = useAuthStore();
+
+  const validateForm = () => {
+    if (!formData.fullname.trim()) return toast.error("Full name is required");
+    if (!formData.username.trim()) return toast.error("Username is required");
+    if (!formData.email.trim()) return toast.error("Email is required");
     if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
     if (!formData.password) return toast.error("Password is required");
     if (formData.password.length < 8) return toast.error("Password must be at least 8 characters");
-
     return true;
-
   };
-  const handleSubmit =  (e) => {
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const success=validateForm()
-
-    if(success===true)signup(formData)
-
+    const success = validateForm();
+    if (success === true) signup(formData);
   }
+
   return (
     <div className='min-h-screen grid lg:grid-cols-2'>
       <div className='flex flex-col justify-center items-center p-6 sm:p-12'>
         <div className='w-full max-w-md space-y-8'>
-        <div className="text-center mb-8">
+          <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
-              <div
-                className="size-12 rounded-xl bg-primary/10 flex items-center justify-center 
-              group-hover:bg-primary/20 transition-colors"
-              >
+              <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <MessageSquare className="size-6 text-primary" />
               </div>
               <h1 className="text-2xl font-bold mt-2">Create Account</h1>
@@ -49,34 +46,50 @@ function SignUpPage() {
           </div>
 
           <form onSubmit={handleSubmit} className='space-y-9'>
-          <div className="form-control">
-  <label className="label">
-    <span className="label-text font-medium">Full Name</span>
-  </label>
-  <div className="relative">
-    <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
-    <input
-      type="text"
-      className="input input-bordered w-full pl-10"
-      placeholder="John Doe"
-      value={formData.fullname}
-      onChange={(e) => setFormData({ ...formData, fullname: e.target.value })}
-    />
-  </div>
-</div>
+            {/* Full Name */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Full Name</span>
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
+                <input
+                  type="text"
+                  className="input input-bordered w-full pl-10"
+                  placeholder="John Doe"
+                  value={formData.fullname}
+                  onChange={(e) => setFormData({ ...formData, fullname: e.target.value })}
+                />
+              </div>
+            </div>
 
+            {/* Username */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Username</span>
+              </label>
+              <div className="relative">
+                <CircleUserRound className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
+                <input
+                  type="text"
+                  className="input input-bordered w-full pl-10"
+                  placeholder="your_username"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                />
+              </div>
+            </div>
 
+            {/* Email */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Email</span>
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
-
-                
                 <input
                   type="email"
-                  className={`input input-bordered w-full pl-10`}
+                  className="input input-bordered w-full pl-10"
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -84,15 +97,16 @@ function SignUpPage() {
               </div>
             </div>
 
+            {/* Password */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Password</span>
               </label>
               <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pl-10`}
+                  className="input input-bordered w-full pl-10"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -111,6 +125,7 @@ function SignUpPage() {
               </div>
             </div>
 
+            {/* Submit Button */}
             <button type="submit" className="btn btn-primary w-full" disabled={isSigningUp}>
               {isSigningUp ? (
                 <>
@@ -121,10 +136,9 @@ function SignUpPage() {
                 "Create Account"
               )}
             </button>
-
-
           </form>
 
+          {/* Footer */}
           <div className="text-center">
             <p className="text-base-content/60">
               Already have an account?{" "}
@@ -135,6 +149,8 @@ function SignUpPage() {
           </div>
         </div>
       </div>
+
+      {/* Right Panel */}
       <AuthImagePattern
         title="Join our community"
         subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
