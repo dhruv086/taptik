@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 const algorithm = "aes-256-cbc";
-const secretKey = process.env.SECRET_KEY || "your-secret-key"; 
+const secretKey = process.env.SECRET_KEY; 
 const iv = crypto.randomBytes(16); 
 
 const decrypt = (encryptedData, iv) => {

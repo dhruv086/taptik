@@ -53,7 +53,7 @@ const Sidebar = () => {
                 <div className="hidden lg:block text-left min-w-0">
                   <div className="font-medium truncate">{user.fullname}</div>
                   <div className="text-sm text-base-content/70">
-                    {user.email}
+                    {user.username}
                   </div>
                 </div>
               </button>
