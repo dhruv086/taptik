@@ -7,7 +7,7 @@ import { Users } from "lucide-react";
 
 const Sidebar = () => {
   const { getUsers, users = [], selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
-  const { authUser } = useAuthStore();
+  const { authUser, onlineUsers } = useAuthStore();
   console.log(users)
 
   useEffect(() => {
@@ -45,9 +45,15 @@ const Sidebar = () => {
                 <div className="relative mx-auto lg:mx-0">
                   <img
                     src={user.profilePic || "/avatar.png"}
-                    alt={user.fullName}
+                    alt={user.fullname}
                     className="size-12 object-cover rounded-full"
                   />
+                  {onlineUsers.includes(user._id) && (
+                <span
+                  className="absolute bottom-0 right-0 size-3 bg-green-500 
+                  rounded-full ring-2 ring-zinc-900"
+                />
+              )}
                 </div>
 
                 <div className="hidden lg:block text-left min-w-0">

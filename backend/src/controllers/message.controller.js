@@ -6,6 +6,7 @@ import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { Message } from "../models/message.model.js";
 import { encrypt, decrypt } from "../lib/encryption.js";
 import crypto from "crypto";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 
 const getAllUsers = AsyncHandler(async (req, res) => {
   if (!req.user?._id) {
@@ -116,6 +117,12 @@ const sendMessage = AsyncHandler(async(req,res)=>{
     } catch (error) {
       console.error("Error decrypting new message:", error);
     }
+  }
+
+  const ReceiverSocketId = getReceiverSocketId(receiverId)
+  if(ReceiverSocketId){
+    // Send the complete message object with all MongoDB fields
+    io.to(ReceiverSocketId).emit("newMessage", responseMessage)
   }
 
   return res

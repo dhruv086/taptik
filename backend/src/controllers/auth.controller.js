@@ -138,7 +138,11 @@ const updateProfile = AsyncHandler(async(req,res)=>{
 
 const getUser =  AsyncHandler(async(req,res)=>{
   try{
-    res.status(200).json(req.user)
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, req.user, "User fetched successfully")
+      )
   }catch(error){
     console.log("error in checkAuth controller",error.message)
     throw new ApiError(400,"internal server error")

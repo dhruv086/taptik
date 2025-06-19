@@ -3,10 +3,11 @@ import dotenv from "dotenv"
 import connectDB from "./lib/db.js"
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import { app,server } from "./lib/socket.js"
 
 dotenv.config()
 
-const app = express();
+
 import authRoute from "./routes/auth.route.js"
 import messageRoute from "./routes/message.route.js"
 
@@ -24,7 +25,7 @@ app.use(cors({
 app.use("/api/auth",authRoute)
 app.use("/api/messages",messageRoute)
 
-app.listen(process.env.PORT,()=>{
+server.listen(process.env.PORT,()=>{
   console.log("server is running",process.env.PORT)
   connectDB();
 })

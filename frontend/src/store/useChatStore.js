@@ -47,6 +47,23 @@ export const useChatStore = create((set,get) => ({
       toast.error(error.response.data.message)
     }
   },
+  listenToMessages:()=>{
+    const {selectedUser} = get()
+    if(!selectedUser)return;
+
+    const socket = useAuthStore.getState().socket
+
+    socket.on("newMessage",(newMessage)=>{
+      set({
+        messages:[...get().messages,newMessage],
+      })
+    })
+  },
+
+  notListenToMessages:()=>{
+    const socket = useAuthStore.getState().socket;
+    socket.off("newMessage")
+  },
   
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
