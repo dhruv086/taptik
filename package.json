@@ -4,7 +4,7 @@
   "description": "Taptik is a full-stack real-time chat application built with React, Node.js, Express, MongoDB, and Socket.io. It supports secure authentication, real-time messaging, user profiles, and more.",
   "main": "index.js",
   "scripts": {
-    "build":"npm install --prefix backend && npm install build --prefix frontend && npm run build --prefix frontend",
+    "build":"cd frontend && npm install && npm run build && cd .. &&cp -r frontend/dist backend/dist && cd backend && npm install",
     "start":"npm run start --prefix backend"
   },
   "repository": {
