@@ -1,0 +1,21 @@
+{
+  "name": "taptik-main",
+  "version": "1.0.0",
+  "description": "Taptik is a full-stack real-time chat application built with React, Node.js, Express, MongoDB, and Socket.io. It supports secure authentication, real-time messaging, user profiles, and more.",
+  "main": "index.js",
+  "scripts": {
+    "build":"npm install --prefix backend && npm install build --prefix frontend && npm run build --prefix frontend",
+    "script":"npm run start --prefix backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhruv086/taptik.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dhruv086/taptik/issues"
+  },
+  "homepage": "https://github.com/dhruv086/taptik#readme"
+}
