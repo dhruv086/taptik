@@ -1,18 +1,34 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import toast from "react-hot-toast";
-import { Users } from "lucide-react";
+import { Users, MessageCircleMore } from "lucide-react";
 
 const Sidebar = () => {
   const { getUsers, users = [], selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
-  const { authUser, onlineUsers } = useAuthStore();
-  // console.log(users)
+  const { authUser, onlineUsers, socket } = useAuthStore();
+  const [typingUsers, setTypingUsers] = useState([]);
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleTyping = ({ sender }) => {
+      setTypingUsers((prev) => [...new Set([...prev, sender])]);
+    };
+    const handleStopTyping = ({ sender }) => {
+      setTypingUsers((prev) => prev.filter((id) => id !== sender));
+    };
+    socket.on("typing", handleTyping);
+    socket.on("stopTyping", handleStopTyping);
+    return () => {
+      socket.off("typing", handleTyping);
+      socket.off("stopTyping", handleStopTyping);
+    };
+  }, [socket]);
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -48,12 +64,16 @@ const Sidebar = () => {
                     alt={user.fullname}
                     className="size-12 object-cover rounded-full"
                   />
-                  {onlineUsers.includes(user._id) && (
-                <span
-                  className="absolute bottom-0 right-0 size-3 bg-green-500 
-                  rounded-full ring-2 ring-zinc-900"
-                />
-              )}
+                  {typingUsers.includes(user._id) ? (
+                    <span className="absolute bottom-0 right-0 size-5 bg-base-100 rounded-full flex items-center justify-center">
+                      <MessageCircleMore className="text-blue-500 size-4" />
+                    </span>
+                  ) : onlineUsers.includes(user._id) && (
+                    <span
+                      className="absolute bottom-0 right-0 size-3 bg-green-500 
+                      rounded-full ring-2 ring-zinc-900"
+                    />
+                  )}
                 </div>
 
                 <div className="hidden lg:block text-left min-w-0">
