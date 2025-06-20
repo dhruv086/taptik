@@ -19,11 +19,11 @@ export function getReceiverSocketId(userId){
 const userSocketMap = {}
 
 io.on("connection",(socket)=>{
-  console.log("a user connected", socket.id)
+  // console.log("a user connected", socket.id)
 
   const userId = socket.handshake.query.userId
   if(userId) {
-    console.log("User connected with ID:", userId)
+    // console.log("User connected with ID:", userId)
     userSocketMap[userId] = socket.id
     
     // Emit updated online users list to all clients
@@ -31,14 +31,14 @@ io.on("connection",(socket)=>{
   }
 
   socket.on("disconnect",()=>{
-    console.log("User disconnected:", socket.id)
+    // console.log("User disconnected:", socket.id)
     // Find and remove the disconnected user
     const userId = Object.keys(userSocketMap).find(key => userSocketMap[key] === socket.id)
     if(userId) {
-      console.log("User removed from online list:", userId)
+      // console.log("User removed from online list:", userId)
       delete userSocketMap[userId]
       io.emit("getOnlineUsers", Object.keys(userSocketMap))
-      console.log("Updated online users:", Object.keys(userSocketMap))
+      // console.log("Updated online users:", Object.keys(userSocketMap))
     }
   })
 })

@@ -146,7 +146,7 @@ const getUser =  AsyncHandler(async(req,res)=>{
         new ApiResponse(200, req.user, "User fetched successfully")
       )
   }catch(error){
-    console.log("error in checkAuth controller",error.message)
+    // console.log("error in checkAuth controller",error.message)
     throw new ApiError(400,"internal server error")
   }
 })
