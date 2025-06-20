@@ -67,22 +67,24 @@ const signUp = AsyncHandler(async(req,res)=>{
 
 
 const login = AsyncHandler(async(req,res)=>{
-  const {email,password} = req.body
+  const {userId,password} = req.body
 
-  if(!email||!password){
+  if(!userId&&!password){
     throw new ApiError(400,"all field are required")
   }
   if(password.length<8){
     throw new ApiError(400,"password has to be at least 8 characters")
   }
-  const user = await User.findOne({email})
+
+  
+  const user = await User.findOne({ $or: [{ email: userId }, { username: userId }] })
   if(!user){
-    throw new ApiError(400,"invalid credentials")
+    throw new ApiError(400,"invalid credentials 1")
   }
 
   const isPasswordCorrect = await bcrypt.compare(password,user.password)
   if(!isPasswordCorrect){
-    throw new ApiError(400,"invalid credentials")
+    throw new ApiError(400,"invalid credentials 2")
   }
   generateToken(user._id,res)
 

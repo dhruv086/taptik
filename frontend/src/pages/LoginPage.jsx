@@ -7,7 +7,7 @@ import AuthImagePattern from '../components/authImagePattern';
 const LoginPage =()=>{
   const [showPassword,setShowPassword] = useState(false)
   const [formData,setFormData]=useState({
-    email:"",
+    userId:"",
     password:"",
   })
   
@@ -38,18 +38,18 @@ const LoginPage =()=>{
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-medium">Email</span>
+                <span className="label-text font-medium">Email or username</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-base-content/40" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   className={`input input-bordered w-full pl-10`}
                   placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  value={formData.userId}
+                  onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
                 />
               </div>
             </div>
