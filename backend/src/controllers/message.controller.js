@@ -108,6 +108,17 @@ const sendMessage = AsyncHandler(async(req,res)=>{
   if(!newMessage){
     throw new ApiError(400, "error in creating new message")
   }
+  const sender = await User.findById(userId).select("fullname")
+
+  const message= `you have a new message from ${sender.fullname}`
+  const notif = {message, read: false};
+  await User.findByIdAndUpdate(receiverId,{
+    $push:{
+      notification:notif
+    }
+  })
+  // Emit socket event
+  io.to(receiverId.toString()).emit("newNotification", notif);
 
   // Return the message with decrypted text if it exists
   const responseMessage = newMessage.toObject();

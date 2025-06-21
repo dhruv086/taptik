@@ -24,6 +24,32 @@ const userSchema= new mongoose.Schema({
     type:String,
     default:"",
   },
+  friends: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  }],
+  notification:[
+    {
+    type: new mongoose.Schema({
+      message: { 
+        type: String,
+        required: true 
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now 
+      },
+      read: {
+        type: Boolean, 
+        default: false 
+      },
+    }, { _id: false })
+  },
+],
+  lastNotificationSeenAt:{ 
+    type: Date,
+    default: null 
+  }
 },{timestamps:true})
 
 export const User = mongoose.model("User",userSchema)

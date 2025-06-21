@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import { axiosInstance } from '../lib/axios.js';
 import toast,{Toaster} from 'react-hot-toast';
 import { io } from 'socket.io-client';
+import { Trophy } from 'lucide-react';
 
 const BASE_URL = import.meta.env.MODE==="development"?"http://localhost:5001" :"/"
 
@@ -12,7 +13,29 @@ export const useAuthStore = create((set,get) => ({
   isUpdatingProfile: false,
   onlineUsers:[],
   socket:null,
+  isNotificationLoading:false,
+  notifications:[],
 
+  getUnreadNotificationsCount: () => {
+    const { notifications } = get();
+    
+    if (!notifications || !Array.isArray(notifications)) {
+      // console.log("getUnreadNotificationsCount - notifications is not an array, returning 0");
+      return 0;
+    }
+    
+    const unreadNotifications = notifications.filter(notif => {
+      // console.log("Checking notification:", notif);
+      // console.log("Notification read field:", notif.read);
+      // console.log("Notification read field type:", typeof notif.read);
+      return !notif.read;
+    });
+    
+    // console.log("getUnreadNotificationsCount - unreadNotifications:", unreadNotifications);
+    const unreadCount = unreadNotifications.length;
+    // console.log("getUnreadNotificationsCount - unreadCount:", unreadCount);
+    return unreadCount;
+  },
 
   isCheckingAuth: true,
 
@@ -21,6 +44,7 @@ export const useAuthStore = create((set,get) => ({
       const res = await axiosInstance.get('/auth/getuser');
       set({authUser:res.data.message})
       get().connectSocket();
+      get().allNotifications();
 
     }catch (error) {
       if (error?.response?.status !== 401) {
@@ -53,6 +77,8 @@ export const useAuthStore = create((set,get) => ({
       const res = await axiosInstance.post("/auth/login",data)
       set({authUser:res.data})
       toast.success("logged in successfully")
+      // Fetch notifications after login
+      get().allNotifications();
       window.location.reload();
       get().connectSocket();
     }catch(error){
@@ -84,6 +110,29 @@ export const useAuthStore = create((set,get) => ({
       set({ isUpdatingProfile: false });
     }
   },
+  allNotifications:async()=>{
+    set({isNotificationLoading:true});
+    try {
+      const res=await axiosInstance.get("/auth/notification")
+      set({notifications:res.data.message})
+    } catch (error) {
+      toast.error(error.response?.message?.message,"error fetching notification")
+    }finally{
+      set({isNotificationLoading:false})
+    }
+  },
+  markNotificationsAsRead:async()=>{
+    // console.log("markNotificationsAsRead called");
+    try {
+      const res=await axiosInstance.put("/auth/mark-notifications-read")
+      // console.log("markNotificationsAsRead response:", res.data);
+      set({notifications:res.data.message})
+      // console.log("Notifications updated in store");
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
+      toast.error(error.response?.data?.message,"error marking notifications as read")
+    }
+  },
   connectSocket:()=>{
     const {authUser} = get()
     if(!authUser||get().socket?.connected) return;
@@ -96,6 +145,13 @@ export const useAuthStore = create((set,get) => ({
 
     socket.on("connect", () => {
       // console.log("Socket connected with userId:", authUser._id);
+    });
+
+    // Listen for new notifications
+    socket.on("newNotification", (notif) => {
+      set((state) => ({
+        notifications: [notif, ...state.notifications]
+      }));
     });
 
     socket.connect();

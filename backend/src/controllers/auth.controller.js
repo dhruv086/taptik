@@ -1,3 +1,4 @@
+import { json } from "express";
 import cloudinary from "../lib/cloudinary.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -5,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
+import { io } from "../lib/socket.js";
 
 
 const generateToken = (userId,res)=>{
@@ -87,7 +89,15 @@ const login = AsyncHandler(async(req,res)=>{
     throw new ApiError(400,"invalid credentials 2")
   }
   generateToken(user._id,res)
-
+  const message= `Somebody logged into your account on ${new Date().toLocaleString()}`
+  const notif = {message, read: false};
+  await User.findByIdAndUpdate(user,{
+    $push:{
+      notification:notif
+    }
+  })
+  // Emit socket event
+  io.to(user._id.toString()).emit("newNotification", notif);
   return res
   .status(200)
   .json(
@@ -130,6 +140,16 @@ const updateProfile = AsyncHandler(async(req,res)=>{
     throw new ApiError(400,"error in updating file")
   }
 
+  const message= `you updated your profile picture on ${new Date().toLocaleString()}`
+  const notif = {message, read: false};
+  await User.findByIdAndUpdate(user,{
+    $push:{
+      notification:notif
+    }
+  })
+  // Emit socket event
+  io.to(user._id.toString()).emit("newNotification", notif);
+
   return res
   .status(200)
   .json(
@@ -154,16 +174,69 @@ const getUser =  AsyncHandler(async(req,res)=>{
 
 
 
-const findUser = AsyncHandler(async(req,res)=>{
-  const {userName} = req.body
-  
+
+
+
+const fetchNotification = AsyncHandler(async(req,res)=>{
+  const userId = req.user._id
+
+  const user = await User.findById(userId)
+
+  if(!user)throw new ApiError(400,"user not found")
+    const sortedNotifications = user.notification.sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200,sortedNotifications,"all notification fetched successfully")
+  )
 })
 
+const markNotificationsAsRead = AsyncHandler(async(req,res)=>{
+  const userId = req.user._id
+
+  const user = await User.findById(userId)
+
+  if(!user)throw new ApiError(400,"user not found")
+
+  // First, update any notifications that don't have the read field
+  const notificationsWithRead = user.notification.map(notif => {
+    const notifObj = notif.toObject ? notif.toObject() : notif;
+    return {
+      ...notifObj,
+      read: notifObj.read !== undefined ? notifObj.read : false
+    };
+  });
+
+  // Mark all notifications as read
+  const updatedNotifications = notificationsWithRead.map(notif => ({
+    ...notif,
+    read: true
+  }));
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId, 
+    { notification: updatedNotifications },
+    { new: true }
+  )
+
+  if(!updatedUser)throw new ApiError(400,"error updating notifications")
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200,updatedUser.notification,"notifications marked as read successfully")
+  )
+})
 
 export {
   signUp,
   login,
   logout,
   updateProfile,
-  getUser
+  getUser,
+  fetchNotification,
+  markNotificationsAsRead
 }

@@ -1,10 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { LogOut, MessageSquare, Settings, User } from "lucide-react";
+import { Bell, LogOut, MessageSquare, Settings, User } from "lucide-react";
 import toast, {Toaster} from "react-hot-toast";
 
 const Navbar = () => {
-  const { logout, authUser } = useAuthStore();
+  const { logout, authUser, getUnreadNotificationsCount, notifications, markNotificationsAsRead } = useAuthStore();
+  const navigate = useNavigate();
+
+  const unreadCount = getUnreadNotificationsCount();
+
+  const handleBellClick = async () => {
+    if (unreadCount > 0) {
+      await markNotificationsAsRead();
+    }
+    navigate("/notifications");
+  };
 
   return (
     <header
@@ -22,13 +32,18 @@ const Navbar = () => {
             </Link>
           </div>
 
-          
-
           <div className="flex items-center gap-2">
-           
-
             {authUser && (
               <>
+                <div className="relative">
+                  <button type="button" className="btn btn-sm gap-2" onClick={handleBellClick}>
+                    <Bell className="size-5" />
+                  </button>
+                  {unreadCount > 0 && (
+                    <div className="absolute -top-1 -right-1 size-3 bg-green-500 rounded-full border-2 border-base-100 animate-pulse"></div>
+                  )}
+                </div>
+
                 <Link to={"/profile"} className={`btn btn-sm gap-2`}>
                   <User className="size-5" />
                   <span className="hidden sm:inline">Profile</span>
