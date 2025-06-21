@@ -90,7 +90,7 @@ const login = AsyncHandler(async(req,res)=>{
   }
   generateToken(user._id,res)
   const message= `Somebody logged into your account on ${new Date().toLocaleString()}`
-  const notif = {message, read: false};
+  const notif = {message, read: false,isSerious:true};
   await User.findByIdAndUpdate(user,{
     $push:{
       notification:notif

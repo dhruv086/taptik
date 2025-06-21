@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useAuthStore } from '../store/useAuthStore';
 import NotificationSkeleton from '../components/skeletons/NotificationSkeleton';
+import { Globe, Mail,CircleAlert } from 'lucide-react';
 
 function NotificationPage() {
   const {isNotificationLoading, notifications = [], allNotifications} = useAuthStore();
@@ -26,9 +27,18 @@ function NotificationPage() {
               notifications.map((notif, idx) => (
                 <div
                   key={idx}
-                  className="bg-base-100 px-4 py-3 rounded-lg shadow"
+                  className="bg-base-100 px-4 py-3 rounded-lg shadow flex items-start gap-3"
                 >
-                  {notif.message}
+                  <div className="flex-shrink-0 mt-1">
+                    {notif.isSerious ? (
+                      <CircleAlert className="w-5 h-5 text-red-500" />
+                    ) : (
+                      <Mail className="w-5 h-5 text-gray-500" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm">{notif.message}</p>
+                  </div>
                 </div>
               ))
             )}
