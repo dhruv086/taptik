@@ -8,7 +8,7 @@ import { AsyncHandler } from "../utils/AsyncHandler.js";
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
 import { io } from "../lib/socket.js";
-import { generateOTP, sendOTPEmail } from "../lib/email.js";
+import { generateOTP, sendOTPEmail, sendWelcomeEmail, sendActivityNotification } from "../lib/email.js";
 
 
 const generateToken = (userId,res)=>{
@@ -47,7 +47,14 @@ const signUp = AsyncHandler(async(req,res)=>{
       throw new ApiError(400,"user with this username already exists")
     }
 
-    
+    // Check if email is verified
+    const emailVerification = await EmailVerification.findOne({ 
+      email, 
+      isVerified: true 
+    });
+    if (!emailVerification) {
+      throw new ApiError(400,"Please verify your email first");
+    }
 
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password,salt)
@@ -67,6 +74,43 @@ const signUp = AsyncHandler(async(req,res)=>{
 
     // Clean up the email verification record
     await EmailVerification.findOneAndDelete({ email });
+
+    // Send welcome email
+    try {
+      const welcomeEmailSent = await sendWelcomeEmail(email, fullname);
+      if (!welcomeEmailSent) {
+        // If email is not configured, log in development mode
+        if (process.env.NODE_ENV === 'development' && !process.env.EMAIL_USER) {
+          console.log(`Development mode: Welcome email would be sent to ${email} for user ${fullname}`);
+        }
+      } else {
+        console.log(`Welcome email sent to ${email}`);
+      }
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+      // Don't throw error here as user creation was successful
+    }
+
+    // Send activity notification
+    try {
+      const activityEmailSent = await sendActivityNotification('signup', {
+        fullname: fullname,
+        email: email,
+        username: username,
+        ip: req.ip || req.connection.remoteAddress
+      });
+      if (!activityEmailSent) {
+        // If email is not configured, log in development mode
+        if (process.env.NODE_ENV === 'development' && !process.env.EMAIL_USER) {
+          console.log(`Development mode: Activity notification would be sent to taptikactivity@gmail.com for new signup: ${fullname} (${email})`);
+        }
+      } else {
+        console.log(`Activity notification sent to taptikactivity@gmail.com for new signup: ${fullname}`);
+      }
+    } catch (error) {
+      console.error('Error sending activity notification:', error);
+      // Don't throw error here as user creation was successful
+    }
 
     generateToken(newUser._id,res);
 
@@ -109,6 +153,28 @@ const login = AsyncHandler(async(req,res)=>{
   })
   // Emit socket event
   io.to(user._id.toString()).emit("newNotification", notif);
+
+  // Send activity notification
+  try {
+    const activityEmailSent = await sendActivityNotification('login', {
+      fullname: user.fullname,
+      email: user.email,
+      username: user.username,
+      ip: req.ip || req.connection.remoteAddress
+    });
+    if (!activityEmailSent) {
+      // If email is not configured, log in development mode
+      if (process.env.NODE_ENV === 'development' && !process.env.EMAIL_USER) {
+        console.log(`Development mode: Activity notification would be sent to taptikactivity@gmail.com for login: ${user.fullname} (${user.email})`);
+      }
+    } else {
+      console.log(`Activity notification sent to taptikactivity@gmail.com for login: ${user.fullname}`);
+    }
+  } catch (error) {
+    console.error('Error sending activity notification:', error);
+    // Don't throw error here as login was successful
+  }
+
   return res
   .status(200)
   .json(
