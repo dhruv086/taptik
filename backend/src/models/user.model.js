@@ -24,10 +24,10 @@ const userSchema= new mongoose.Schema({
     type:String,
     default:"",
   },
-  friends: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  }],
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
   notification:[
     {
     type: new mongoose.Schema({
@@ -50,10 +50,6 @@ const userSchema= new mongoose.Schema({
     }, { _id: false })
   },
 ],
-  lastNotificationSeenAt:{ 
-    type: Date,
-    default: null 
-  }
 },{timestamps:true})
 
 export const User = mongoose.model("User",userSchema)
