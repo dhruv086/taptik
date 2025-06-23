@@ -28,19 +28,12 @@ const ChatHeader = () => {
 
         {/* Close button */}
       </div>
-        <div className="flex">
-          <div className="mr-10">
-            <button>
-         <Video />
-            </button>
-          </div>
           <div>
 
         <button onClick={() => setSelectedUser(null)}>
           <X />
         </button>
           </div>
-        </div>
     </div>
   );
 };
