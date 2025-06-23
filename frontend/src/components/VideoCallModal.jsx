@@ -3,6 +3,22 @@ import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useVideoCall } from "./VideoCallProvider";
 
+const iceServers = {
+  iceServers: [
+    { urls: "stun:global.stun.xirsys.com" },
+    {
+      urls: [
+        "turn:global.turn.xirsys.com:3478?transport=udp",
+        "turn:global.turn.xirsys.com:3478?transport=tcp",
+        "turn:global.turn.xirsys.com:5349?transport=udp",
+        "turn:global.turn.xirsys.com:5349?transport=tcp"
+      ],
+      username: "dhruv086",
+      credential: "af5cb17c-5033-11f0-b5c5-0242ac150002"
+    }
+  ]
+};
+
 const VideoCallModal = ({ isOpen, onClose, callee, caller, isCaller, callState, acceptCall, rejectCall }) => {
   console.log("[VideoCallModal] Rendered", { isOpen, callState, isCaller, callee, caller });
   const { socket, user } = useAuthStore();
@@ -12,13 +28,6 @@ const VideoCallModal = ({ isOpen, onClose, callee, caller, isCaller, callState, 
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
   const [connectionState, setConnectionState] = useState("idle");
-
-  // ICE servers for STUN/TURN
-  const iceServers = {
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-    ],
-  };
 
   // Start local stream on open
   useEffect(() => {
