@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { Bell, LogOut, MessageSquare, Search, Settings, User } from "lucide-react";
+import { Bell, Group, LogOut, MessageSquare, Search, Settings, User, Users } from "lucide-react";
 import toast, {Toaster} from "react-hot-toast";
 
 const Navbar = () => {
@@ -39,7 +39,10 @@ const Navbar = () => {
                   <Search className="size-5" />
                 </Link>
                 <div className="relative">
-                  <button type="button" className="btn btn-sm btn-ghost btn-circle gap-2" onClick={handleBellClick}>
+                  <button type="button" className="btn btn-xs btn-ghost btn-circle gap-4  mr-2" >
+                    <Group className="size-5" />
+                  </button>
+                  <button type="button" className="btn btn-sm btn-ghost btn-circle gap-4" onClick={handleBellClick}>
                     <Bell className="size-5" />
                   </button>
                   {unreadCount > 0 && (
