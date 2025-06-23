@@ -154,6 +154,25 @@ export const useAuthStore = create((set,get) => ({
       }));
     });
 
+    // Listen for new friend requests
+    socket.on("newFriendRequest", async (request) => {
+      try {
+        const requesterRes = await axiosInstance.get(`/auth/getuser/${request.requester}`);
+        const requester = requesterRes.data.message;
+        const notif = {
+          message: `${requester.fullname} (@${requester.username}) sent you a friend request`,
+          read: false,
+          createdAt: new Date(),
+        };
+        set((state) => ({
+          notifications: [notif, ...state.notifications]
+        }));
+        toast.success("New friend request received!");
+      } catch (error) {
+        console.error("Error processing friend request:", error);
+      }
+    });
+
     socket.connect();
     set({socket:socket});
 

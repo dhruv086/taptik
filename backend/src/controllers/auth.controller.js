@@ -248,11 +248,18 @@ const getUser =  AsyncHandler(async(req,res)=>{
   }
 })
 
+const getUserById = AsyncHandler(async(req,res)=>{
+  const { userId } = req.params;
+  
+  const user = await User.findById(userId).select("-password");
+  if(!user){
+    throw new ApiError(404, "User not found");
+  }
 
-
-
-
-
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "User fetched successfully", user));
+});
 
 const fetchNotification = AsyncHandler(async(req,res)=>{
   const userId = req.user._id
@@ -423,6 +430,7 @@ export {
   logout,
   updateProfile,
   getUser,
+  getUserById,
   fetchNotification,
   markNotificationsAsRead,
   sendOTP,
