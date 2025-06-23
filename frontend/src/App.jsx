@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 import SettingsPage from './pages/SettingsPage'
 import ProfilePage from './pages/ProfilePage'
 import NotificationPage from './pages/NotificationPage'
+import SearchPage from './pages/SearchPage'
 import { useAuthStore } from './store/useAuthStore'
 import { Loader } from 'lucide-react'
 import {Toaster} from 'react-hot-toast'
@@ -40,6 +41,7 @@ if(isCheckingAuth&& !authUser){
         <Route path='/settings' element={<SettingsPage />}/>
         <Route path='/profile' element={authUser ?<ProfilePage /> : <Navigate to="/login"/>}/>
         <Route path='/notifications' element={authUser?<NotificationPage /> : <Navigate to="/login"/>}/> 
+        <Route path='/search' element={authUser ? <SearchPage /> : <Navigate to="/login" />} />
       </Routes>
 
       <Toaster />

@@ -58,7 +58,7 @@ export const sendOTPEmail = async (email, otp) => {
             </p>
           </div>
           <div style="background: #333; padding: 20px; text-align: center; color: white;">
-            <p style="margin: 0; font-size: 14px;">© 2024 TapTik. All rights reserved.</p>
+            <p style="margin: 0; font-size: 14px;">© 2025 TapTik. All rights reserved.</p>
           </div>
         </div>
       `,
@@ -257,6 +257,47 @@ export const sendActivityNotification = async (activityType, userData) => {
     return true;
   } catch (error) {
     console.error('Error sending activity notification email:', error);
+    return false;
+  }
+};
+
+export const sendFriendRequestEmail = async (receiverEmail, receiverName, senderName, senderUsername) => {
+  try {
+    if (!isEmailConfigured()) {
+      console.error('Email credentials not configured. Please set EMAIL_USER and EMAIL_PASSWORD in your .env file');
+      return false;
+    }
+    const transporter = createTransporter();
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: receiverEmail,
+      subject: `New Friend Request on TapTik!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center; color: white;">
+            <h1 style="margin: 0;">TapTik</h1>
+            <p style="margin: 10px 0 0 0;">New Friend Request</p>
+          </div>
+          <div style="padding: 30px; background: #f9f9f9;">
+            <h2 style="color: #333; margin-bottom: 20px;">Hello ${receiverName},</h2>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+              <strong>${senderName}</strong> (@${senderUsername}) has sent you a friend request on TapTik!<br/>
+              Log in to your account to accept or decline the request.
+            </p>
+            <p style="color: #999; font-size: 14px; margin-top: 30px;">
+              If you don't recognize this user, you can safely ignore this email.
+            </p>
+          </div>
+          <div style="background: #333; padding: 20px; text-align: center; color: white;">
+            <p style="margin: 0; font-size: 14px;">© 2025 TapTik. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending friend request email:', error);
     return false;
   }
 }; 

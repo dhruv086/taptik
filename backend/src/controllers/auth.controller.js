@@ -105,7 +105,7 @@ const signUp = AsyncHandler(async(req,res)=>{
           console.log(`Development mode: Activity notification would be sent to taptikactivity@gmail.com for new signup: ${fullname} (${email})`);
         }
       } else {
-        console.log(`Activity notification sent to taptikactivity@gmail.com for new signup: ${fullname}`);
+        // console.log(`Activity notification sent to taptikactivity@gmail.com for new signup: ${fullname}`);
       }
     } catch (error) {
       console.error('Error sending activity notification:', error);
@@ -168,7 +168,7 @@ const login = AsyncHandler(async(req,res)=>{
         console.log(`Development mode: Activity notification would be sent to taptikactivity@gmail.com for login: ${user.fullname} (${user.email})`);
       }
     } else {
-      console.log(`Activity notification sent to taptikactivity@gmail.com for login: ${user.fullname}`);
+      // console.log(`Activity notification sent to taptikactivity@gmail.com for login: ${user.fullname}`);
     }
   } catch (error) {
     console.error('Error sending activity notification:', error);

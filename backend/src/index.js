@@ -12,6 +12,7 @@ dotenv.config()
 
 import authRoute from "./routes/auth.route.js"
 import messageRoute from "./routes/message.route.js"
+import friendRoute from "./routes/friend.route.js"
 
 const __dirname = path.resolve()
 
@@ -28,6 +29,7 @@ app.use(cors({
 
 app.use("/api/auth",authRoute)
 app.use("/api/messages",messageRoute)
+app.use("/api/friends", friendRoute)
 
 if(process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "dist")));

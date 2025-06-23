@@ -17,6 +17,6 @@ const friendSchema = new mongoose.Schema({
     default: "pending",
   },
   
-},{timeStamps:true})
+},{timestamps:true})
 
 export const Friend = mongoose.model("Friend",friendSchema)

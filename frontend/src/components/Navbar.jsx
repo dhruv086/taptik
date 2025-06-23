@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { Bell, LogOut, MessageSquare, Settings, User } from "lucide-react";
+import { Bell, LogOut, MessageSquare, Search, Settings, User } from "lucide-react";
 import toast, {Toaster} from "react-hot-toast";
 
 const Navbar = () => {
@@ -35,8 +35,11 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             {authUser && (
               <>
+                <Link to={"/search"} className={`btn btn-sm btn-ghost btn-circle`}>
+                  <Search className="size-5" />
+                </Link>
                 <div className="relative">
-                  <button type="button" className="btn btn-sm gap-2" onClick={handleBellClick}>
+                  <button type="button" className="btn btn-sm btn-ghost btn-circle gap-2" onClick={handleBellClick}>
                     <Bell className="size-5" />
                   </button>
                   {unreadCount > 0 && (
