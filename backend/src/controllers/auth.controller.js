@@ -8,7 +8,7 @@ import { AsyncHandler } from "../utils/AsyncHandler.js";
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
 import { io } from "../lib/socket.js";
-import { generateOTP, sendOTPEmail, sendWelcomeEmail, sendActivityNotification } from "../lib/email.js";
+import { generateOTP, sendOTPEmail, sendWelcomeEmail, sendActivityNotification, sendPasswordResetEmail } from "../lib/email.js";
 
 
 const generateToken = (userId,res)=>{
@@ -424,6 +424,46 @@ const verifyOTP = AsyncHandler(async (req, res) => {
     );
 });
 
+const changePassword = AsyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    throw new ApiError(400, "All fields are required");
+  }
+  if (newPassword.length < 8) {
+    throw new ApiError(400, "New password must be at least 8 characters");
+  }
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(400, "New passwords do not match");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) {
+    throw new ApiError(400, "Old password is incorrect");
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+  user.password = hashedPassword;
+  await user.save();
+
+  // Send email notification
+  await sendPasswordResetEmail(user.email, user.fullname);
+
+  // Add bell notification
+  const notif = { message: "Your password was changed successfully.", read: false, isSerious: true };
+  await User.findByIdAndUpdate(userId, { $push: { notification: notif } });
+  io.to(user._id.toString()).emit("newNotification", notif);
+
+  return res.status(200).json(new ApiResponse(200, null, "Password updated successfully"));
+});
+
 export {
   signUp,
   login,
@@ -434,5 +474,6 @@ export {
   fetchNotification,
   markNotificationsAsRead,
   sendOTP,
-  verifyOTP
+  verifyOTP,
+  changePassword
 }

@@ -300,4 +300,44 @@ export const sendFriendRequestEmail = async (receiverEmail, receiverName, sender
     console.error('Error sending friend request email:', error);
     return false;
   }
+};
+
+export const sendPasswordResetEmail = async (email, fullname) => {
+  try {
+    if (!isEmailConfigured()) {
+      console.error('Email credentials not configured. Please set EMAIL_USER and EMAIL_PASSWORD in your .env file');
+      return false;
+    }
+    const transporter = createTransporter();
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your TapTik Password Was Changed',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center; color: white;">
+            <h1 style="margin: 0;">TapTik</h1>
+            <p style="margin: 10px 0 0 0;">Password Changed</p>
+          </div>
+          <div style="padding: 30px; background: #f9f9f9;">
+            <h2 style="color: #333; margin-bottom: 20px;">Hello ${fullname},</h2>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+              This is a confirmation that your TapTik account password was changed. If you did not perform this action, please contact support immediately.
+            </p>
+            <p style="color: #999; font-size: 14px; margin-top: 30px;">
+              If you did change your password, you can safely ignore this email.
+            </p>
+          </div>
+          <div style="background: #333; padding: 20px; text-align: center; color: white;">
+            <p style="margin: 0; font-size: 14px;">© 2025 TapTik. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return false;
+  }
 }; 

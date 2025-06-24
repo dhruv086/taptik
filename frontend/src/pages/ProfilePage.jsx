@@ -92,6 +92,13 @@ const ProfilePage = () => {
               </div>
               <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.email}</p>
             </div>
+            {/* Forgot Password Button */}
+            <button
+              className="w-full mb-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200"
+              onClick={() => window.location.href = '/reset-password'}
+            >
+              Forgot Password?
+            </button>
           </div>
 
           <div className="mt-6 bg-base-300 rounded-xl p-6">
