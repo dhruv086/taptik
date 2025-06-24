@@ -85,6 +85,7 @@ const MessageInput = () => {
               className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
               flex items-center justify-center"
               type="button"
+              title="Remove Image"
             >
               <X className="size-3" />
             </button>
@@ -114,6 +115,7 @@ const MessageInput = () => {
             className={`hidden sm:flex btn btn-circle
                      ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
             onClick={() => fileInputRef.current?.click()}
+            title="Attach Image"
           >
             <Image size={20} />
           </button>
@@ -122,6 +124,7 @@ const MessageInput = () => {
           type="submit"
           className="btn btn-sm btn-circle"
           disabled={!text.trim() && !imagePreview}
+          title="Send Message"
         >
           <Send size={22} />
         </button>

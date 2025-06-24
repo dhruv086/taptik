@@ -35,14 +35,11 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
             {authUser && (
               <>
-                <Link to={"/search"} className={`btn btn-sm btn-ghost btn-circle`}>
+                <Link to={"/search"} className={`btn btn-sm btn-ghost btn-circle`} title="Search">
                   <Search className="size-5" />
                 </Link>
                 <div className="relative">
-                  <button type="button" className="btn btn-xs btn-ghost btn-circle gap-4  mr-2" >
-                    <Group className="size-5" />
-                  </button>
-                  <button type="button" className="btn btn-sm btn-ghost btn-circle gap-4" onClick={handleBellClick}>
+                  <button type="button" className="btn btn-sm btn-ghost btn-circle gap-4" onClick={handleBellClick} title="Notifications">
                     <Bell className="size-5" />
                   </button>
                   {unreadCount > 0 && (
@@ -50,12 +47,12 @@ const Navbar = () => {
                   )}
                 </div>
 
-                <Link to={"/profile"} className={`btn btn-sm gap-2`}>
+                <Link to={"/profile"} className={`btn btn-sm gap-2`} title="Profile">
                   <User className="size-5" />
                   <span className="hidden sm:inline">Profile</span>
                 </Link>
 
-                <button className="flex gap-2 items-center" onClick={logout}>
+                <button className="flex gap-2 items-center" onClick={logout} title="Logout">
                   <LogOut className="size-5" />
                   <span className="hidden sm:inline cursor-pointer">Logout</span>
                 </button>

@@ -30,7 +30,7 @@ const ChatHeader = () => {
       </div>
           <div>
 
-        <button onClick={() => setSelectedUser(null)}>
+        <button onClick={() => setSelectedUser(null)} title="Close Chat">
           <X />
         </button>
           </div>
