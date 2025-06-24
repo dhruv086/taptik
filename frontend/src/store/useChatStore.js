@@ -65,5 +65,30 @@ export const useChatStore = create((set,get) => ({
     socket.off("newMessage")
   },
   
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser) => {
+    set({ selectedUser });
+    if (selectedUser) {
+      get().markMessagesAsRead(selectedUser._id);
+    }
+  },
+
+  listenToContacts: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.on("refreshContacts", () => {
+      get().getUsers();
+    });
+  },
+  notListenToContacts: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("refreshContacts");
+  },
+  markMessagesAsRead: async (fromUserId) => {
+    try {
+      await axiosInstance.put("/messages/mark-read", { fromUserId });
+    } catch (error) {
+      // Optionally handle error
+    }
+  },
 }));

@@ -29,7 +29,7 @@ function getDateLabel(dateString) {
 }
 
 export default function ChatContainer() {
-  const {messages, getMessages, isMessagesLoading, selectedUser, listenToMessages, notListenToMessages} = useChatStore()
+  const {messages, getMessages, isMessagesLoading, selectedUser, listenToMessages, notListenToMessages, markMessagesAsRead} = useChatStore()
   const {authUser, socket} = useAuthStore()
   const messageEndRef=useRef(null)
   const [isTyping, setIsTyping] = useState(false);
@@ -41,6 +41,13 @@ export default function ChatContainer() {
       return () => notListenToMessages();
     }
   }, [selectedUser?._id, getMessages, listenToMessages, notListenToMessages]);
+
+  // Mark messages as read whenever messages change and user is in chat
+  useEffect(() => {
+    if (selectedUser?._id && messages.some(m => m.senderId === selectedUser._id && !m.read)) {
+      markMessagesAsRead(selectedUser._id);
+    }
+  }, [messages, selectedUser, markMessagesAsRead]);
 
   useEffect(()=>{
     if(messageEndRef.current){

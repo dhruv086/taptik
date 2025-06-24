@@ -20,6 +20,10 @@ const messageSchema = new mongoose.Schema({
   iv:{
     type:String,
     required:true,
+  },
+  read: {
+    type: Boolean,
+    default: false,
   }
 },{timestamps:true})
 

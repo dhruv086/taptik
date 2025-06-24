@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { io } from "../lib/socket.js";
 import { sendFriendRequestEmail } from "../lib/email.js";
+import { Message } from "../models/message.model.js";
 
 const searchUsers = AsyncHandler(async (req, res) => {
   const { query } = req.query;
@@ -200,16 +201,35 @@ const getFriends = AsyncHandler(async (req, res) => {
     .populate("requester", "username fullname profilePic")
     .populate("recipient", "username fullname profilePic");
 
-    const friends = friendships.map(friendship => {
-        if (friendship.requester._id.toString() === userId.toString()) {
-            return friendship.recipient;
-        }
-        return friendship.requester;
-    });
+    // For each friend, get the last message exchanged
+    const friendsWithLastMessage = await Promise.all(friendships.map(async (friendship) => {
+        const friend =
+            friendship.requester._id.toString() === userId.toString()
+                ? friendship.recipient
+                : friendship.requester;
+        // Find the last message between user and this friend
+        const lastMessage = await Message.findOne({
+            $or: [
+                { senderId: userId, receiverId: friend._id },
+                { senderId: friend._id, receiverId: userId },
+            ],
+        })
+        .sort({ createdAt: -1 });
+        return {
+            ...friend.toObject(),
+            lastMessage: lastMessage ? {
+                text: lastMessage.text,
+                image: lastMessage.image,
+                createdAt: lastMessage.createdAt,
+                read: lastMessage.read,
+                senderId: lastMessage.senderId,
+            } : null,
+        };
+    }));
 
     return res
         .status(200)
-        .json(new ApiResponse(200, "Friends list fetched successfully", friends));
+        .json(new ApiResponse(200, "Friends list fetched successfully", friendsWithLastMessage));
 });
 
 export { searchUsers, sendFriendRequest, getPendingRequests, updateFriendRequest, getFriends }; 

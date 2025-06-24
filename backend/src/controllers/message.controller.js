@@ -135,6 +135,9 @@ const sendMessage = AsyncHandler(async(req,res)=>{
     // Send the complete message object with all MongoDB fields
     io.to(ReceiverSocketId).emit("newMessage", responseMessage)
   }
+  // Emit event to both sender and receiver to refresh contacts
+  io.to(userId.toString()).emit("refreshContacts");
+  io.to(receiverId.toString()).emit("refreshContacts");
 
   return res
     .status(200)
@@ -143,8 +146,24 @@ const sendMessage = AsyncHandler(async(req,res)=>{
     )
 })
 
+const markMessagesAsRead = AsyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { fromUserId } = req.body;
+  if (!fromUserId) {
+    throw new ApiError(400, "fromUserId is required");
+  }
+  await Message.updateMany(
+    { senderId: fromUserId, receiverId: userId, read: false },
+    { $set: { read: true } }
+  );
+  // Emit socket event to update contacts in real time
+  io.to(userId.toString()).emit("refreshContacts");
+  return res.status(200).json(new ApiResponse(200, null, "Messages marked as read"));
+});
+
 export {
   getAllUsers,
   getMessages,
-  sendMessage
+  sendMessage,
+  markMessagesAsRead
 }
