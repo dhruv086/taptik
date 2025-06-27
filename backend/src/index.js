@@ -20,8 +20,14 @@ const __dirname = path.resolve()
 app.use(express.json({limit:'10mb'}))
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
+
+// CORS configuration for production and development
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? [process.env.FRONTEND_URL || "https://your-frontend-domain.vercel.app"]
+  : ["http://localhost:5173"];
+
 app.use(cors({
-  origin:"http://localhost:5173",
+  origin: allowedOrigins,
   credentials: true,
 }))
 
@@ -31,6 +37,7 @@ app.use("/api/auth",authRoute)
 app.use("/api/messages",messageRoute)
 app.use("/api/friends", friendRoute)
 
+// Serve static files in production (if needed)
 if(process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "dist")));
 
@@ -41,10 +48,12 @@ if(process.env.NODE_ENV === "production") {
 
 const port = process.env.PORT || 5001;
 
+// Only start server if not in production (Vercel handles this)
 if (process.env.NODE_ENV !== 'production') {
   server.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
 }
 
-module.exports = app; // For Vercel
+// Export for Vercel
+export default app;

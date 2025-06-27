@@ -5,9 +5,14 @@ import express from "express"
 const app = express()
 const server = http.createServer(app)
 
+// CORS configuration for production and development
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? [process.env.FRONTEND_URL || "https://your-frontend-domain.vercel.app"]
+  : ["http://localhost:5173"];
+
 const io = new Server(server,{
   cors:{
-    origin: ["http://localhost:5173"],
+    origin: allowedOrigins,
     credentials: true
   }
 })
