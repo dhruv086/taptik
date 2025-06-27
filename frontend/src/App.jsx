@@ -12,7 +12,6 @@ import ResetPasswordPage from './pages/ResetPasswordPage'
 import { useAuthStore } from './store/useAuthStore'
 import { Loader } from 'lucide-react'
 import {Toaster} from 'react-hot-toast'
-import { Analytics } from "@vercel/analytics/react"
 
 
 
@@ -48,7 +47,6 @@ if(isCheckingAuth&& !authUser){
       </Routes>
 
       <Toaster />
-      <Analytics />
     </div>
     )
 }
