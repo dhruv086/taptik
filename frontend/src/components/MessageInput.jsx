@@ -7,6 +7,7 @@ import { useAuthStore } from "../store/useAuthStore";
 const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [isSending, setIsSending] = useState(false); // New state
   const fileInputRef = useRef(null);
   const typingTimeout = useRef(null);
 
@@ -55,13 +56,23 @@ const MessageInput = () => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
+    const prevText = text;
+    const prevImage = imagePreview;
+    setText("");
+    setImagePreview(null);
+    setIsSending(true);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
     try {
-      await sendMessage({ text: text.trim(), image: imagePreview });
-      setText("");
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      await sendMessage({ text: prevText.trim(), image: prevImage });
+      // Success: keep cleared
     } catch (error) {
+      setText(prevText);
+      setImagePreview(prevImage);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       console.error("Failed to send message:", error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -115,7 +126,7 @@ const MessageInput = () => {
 
         <button
           type="submit"
-          disabled={!text.trim() && !imagePreview}
+          disabled={isSending || (!text.trim() && !imagePreview)}
           className="p-2 rounded-lg bg-gradient-to-br from-pink-600 to-purple-600 text-white hover:opacity-90 transition disabled:opacity-50"
           title="Send"
         >
