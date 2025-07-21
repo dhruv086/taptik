@@ -2,22 +2,23 @@ import { MessageSquare } from "lucide-react";
 
 const NoChatSelected = () => {
   return (
-    <div className="w-full flex flex-1 flex-col items-center justify-center p-16 bg-base-100/50">
-      <div className="max-w-md text-center space-y-6">
-        <div className="flex justify-center gap-4 mb-4">
-          <div className="relative">
-            <div
-              className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center
-             justify-center animate-bounce"
-            >
-              <MessageSquare className="w-8 h-8 text-primary " />
-            </div>
+    <div className="w-full flex-1 flex flex-col items-center justify-center p-16 bg-[#1f1c2c] text-white translate-z-0 antialiased">
+      <div className="max-w-md text-center space-y-8">
+        {/* Glowing Icon */}
+        <div className="flex justify-center mb-6">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#5f4b8b] to-[#201c3c] shadow-[0_0_20px_#a78bfa80] flex items-center justify-center animate-pulse">
+            <MessageSquare className="w-9 h-9 text-white drop-shadow-glow" />
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold">Welcome to Taptik</h2>
-        <p className="text-base-content/60">
-          Select a conversation from the sidebar to start chatting
+        {/* Title */}
+        <h2 className="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-purple-400 to-pink-500 text-transparent bg-clip-text">
+          No Conversation Selected
+        </h2>
+
+        {/* Description */}
+        <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
+          Select a user from the sidebar to start a conversation or explore your recent messages. We’re waiting to connect you.
         </p>
       </div>
     </div>

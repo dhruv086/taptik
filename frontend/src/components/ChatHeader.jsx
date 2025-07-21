@@ -1,4 +1,4 @@
-import { Video, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
@@ -6,35 +6,57 @@ const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
+  if (!selectedUser) return null;
+
+  const isOnline = onlineUsers.includes(selectedUser._id);
+
   return (
-    <div className="flex justify-between p-2.5 border-b border-base-300">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Avatar */}
-          <div className="avatar">
-            <div className="size-10 rounded-full relative">
-              <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullname} />
-            </div>
-          </div>
+    <div className="flex items-center justify-between px-4 py-3 border-b border-[#3a3055] bg-[#1f1c2c] shadow-sm">
+      <div className="flex items-center gap-3">
+        {/* Avatar */}
+        <img
+          src={selectedUser.profilePic || "/avatar.png"}
+          alt={selectedUser.fullname}
+          className="w-10 h-10 rounded-full border object-cover"
+        />
 
-          {/* User info */}
-          <div>
-            <h3 className="font-medium">{selectedUser.fullname}</h3>
-            <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
-            </p>
-          </div>
+        {/* User Info */}
+        <div>
+          <p className="font-medium text-sm sm:text-base text-white">
+            {selectedUser.fullname}
+          </p>
+          <p
+            className={`text-xs ${
+              isOnline ? "text-green-400" : "text-zinc-400"
+            }`}
+          >
+            {isOnline ? "Online" : "Offline"}
+          </p>
         </div>
-
-        {/* Close button */}
       </div>
-          <div>
 
-        <button onClick={() => setSelectedUser(null)} title="Close Chat">
-          <X />
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        {/* Future: Video Call button */}
+        {/* 
+        <button
+          title="Video Call"
+          className="p-2 rounded-md hover:bg-[#3a3055] transition"
+        >
+          <Video className="w-5 h-5 text-white" />
         </button>
-          </div>
+        */}
+
+        <button
+          onClick={() => setSelectedUser(null)}
+          title="Close Chat"
+          className="p-2 rounded-md hover:bg-[#3a3055] transition"
+        >
+          <X className="w-5 h-5 text-white" />
+        </button>
+      </div>
     </div>
   );
 };
+
 export default ChatHeader;

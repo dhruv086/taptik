@@ -1,5 +1,4 @@
 const MessageSkeleton = () => {
-  // Create an array of 6 items for skeleton messages
   const skeletonMessages = Array(6).fill(null);
 
   return (
@@ -16,8 +15,13 @@ const MessageSkeleton = () => {
             <div className="skeleton h-4 w-16" />
           </div>
 
-          <div className="chat-bubble bg-transparent p-0">
-            <div className="skeleton h-16 w-[200px]" />
+          <div className="chat-bubble bg-base-300 p-3 rounded-xl">
+            <div className="skeleton h-4 w-40 mb-2" />
+            <div className="skeleton h-4 w-24" />
+          </div>
+
+          <div className="chat-footer mt-1">
+            <div className="skeleton h-3 w-10" />
           </div>
         </div>
       ))}

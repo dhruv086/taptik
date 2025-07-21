@@ -7,9 +7,8 @@ const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile, checkAuth } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
 
-  // Refresh or fetch updated data when the page loads
   useEffect(() => {
-    checkAuth(); // Fetch updated user data
+    checkAuth();
   }, []);
 
   const handleImageUpload = async (e) => {
@@ -17,7 +16,6 @@ const ProfilePage = () => {
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
@@ -26,41 +24,40 @@ const ProfilePage = () => {
       try {
         await updateProfile({ profilePic: base64Image });
         toast.success("Profile picture updated successfully!");
-        window.location.reload(); // Refresh the page after successful update
-      } catch (error) {
-        toast.error("Failed to update profile picture. Please try again.");
+        window.location.reload();
+      } catch {
+        toast.error("Failed to update profile picture.");
       }
     };
   };
 
   return (
-    <div className="h-screen pt-20">
-      <div className="max-w-2xl mx-auto p-4 py-8">
-        <div className="bg-base-300 rounded-xl p-6 space-y-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold">Profile</h1>
-            <p className="mt-2">Your profile information</p>
+    <div className="min-h-screen bg-[#0e0b1f] text-white antialiased px-4 py-20">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-[#1a162b] rounded-2xl p-8 shadow-[0_0_20px_rgba(139,92,246,0.1)] space-y-10">
+          {/* Title */}
+          <div className="text-center space-y-1">
+            <h1 className="text-3xl font-extrabold tracking-tight">Your Profile</h1>
+            <p className="text-sm text-zinc-400">Manage your identity on Taptik</p>
           </div>
 
-          {/* Avatar upload section */}
+          {/* Avatar */}
           <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <img
-                src={selectedImg || authUser.profilePic || "/avatar.png"}
-                alt="Profile"
-                className="size-32 rounded-full object-cover border-4"
-              />
+            <div className="relative group">
+              <div className="relative size-32 rounded-full overflow-hidden ring-4 ring-[#3a3055] shadow-[0_0_15px_#6d28d980] transition duration-300">
+                <img
+                  src={selectedImg || authUser?.profilePic || "/avatar.png"}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <label
                 htmlFor="avatar-upload"
-                className={`
-                  absolute bottom-0 right-0 
-                  bg-base-content hover:scale-105
-                  p-2 rounded-full cursor-pointer 
-                  transition-all duration-200
-                  ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}
-                `}
+                className={`absolute bottom-0 right-0 p-2 bg-[#3a3055] rounded-full cursor-pointer hover:scale-105 transition duration-200 ${
+                  isUpdatingProfile ? "animate-pulse pointer-events-none" : ""
+                }`}
               >
-                <Camera className="w-5 h-5 text-base-200" />
+                <Camera className="w-5 h-5 text-white" />
                 <input
                   type="file"
                   id="avatar-upload"
@@ -72,45 +69,51 @@ const ProfilePage = () => {
               </label>
             </div>
             <p className="text-sm text-zinc-400">
-              {isUpdatingProfile ? "Uploading..." : "Click the camera icon to update your photo"}
+              {isUpdatingProfile ? "Uploading..." : "Click camera to update"}
             </p>
           </div>
 
+          {/* Info Section */}
           <div className="space-y-6">
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="text-sm text-zinc-400 flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.fullname}</p>
+              <p className="px-4 py-2.5 bg-[#2b2540] rounded-lg border border-[#443c63]">
+                {authUser?.fullname}
+              </p>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="text-sm text-zinc-400 flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email Address
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.email}</p>
+              <p className="px-4 py-2.5 bg-[#2b2540] rounded-lg border border-[#443c63]">
+                {authUser?.email}
+              </p>
             </div>
-            {/* Forgot Password Button */}
+
             <button
-              className="w-full mb-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200"
-              onClick={() => window.location.href = '/reset-password'}
+              className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 rounded-lg font-semibold transition-all duration-200"
+              onClick={() => (window.location.href = "/reset-password")}
             >
               Forgot Password?
             </button>
           </div>
 
-          <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium mb-4">Account Information</h2>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between py-2 border-b border-zinc-700">
+          {/* Account Details */}
+          <div className="mt-6 bg-[#2b2540] rounded-xl p-6 border border-[#443c63]">
+            <h2 className="text-lg font-semibold mb-4">Account Details</h2>
+            <div className="space-y-3 text-sm text-zinc-300">
+              <div className="flex items-center justify-between py-2 border-b border-[#443c63]">
                 <span>Member Since</span>
-                <span>{authUser.createdAt?.split("T")[0]}</span>
+                <span>{authUser?.createdAt?.split("T")[0]}</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span>Account Status</span>
-                <span className="text-green-500">Active</span>
+                <span className="text-green-400">Active</span>
               </div>
             </div>
           </div>
