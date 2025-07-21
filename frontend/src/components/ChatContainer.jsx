@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useChatStore } from "../store/useChatStore";
-import MessageInput from "./MessageInput";
-import ChatHeader from "./ChatHeader";
-import MessageSkeleton from "./skeletons/MessageSkeleton";
+import React, { useEffect, useState, useRef } from 'react'
+import { useChatStore } from '../store/useChatStore'
+import MessageInput from './MessageInput'
+import ChatHeader from './ChatHeader'
+import MessageSkeleton from './skeletons/MessageSkeleton'
 import { formatMessageTime } from "../lib/utils";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from '../store/useAuthStore'
 
 function getDateLabel(dateString) {
   if (!dateString) return "";
@@ -25,25 +25,15 @@ function getDateLabel(dateString) {
 
   if (isToday) return "Today";
   if (isYesterday) return "Yesterday";
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
 }
 
 export default function ChatContainer() {
-  const {
-    messages,
-    getMessages,
-    isMessagesLoading,
-    selectedUser,
-    listenToMessages,
-    notListenToMessages,
-    markMessagesAsRead,
-  } = useChatStore();
+  const { messages, getMessages, isMessagesLoading, selectedUser, listenToMessages, notListenToMessages, markMessagesAsRead } = useChatStore();
   const { authUser, socket } = useAuthStore();
+
   const messageEndRef = useRef(null);
+  const messageWrapperRef = useRef(null); // 🧠 New ref for scroll container
   const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
@@ -55,31 +45,35 @@ export default function ChatContainer() {
   }, [selectedUser?._id]);
 
   useEffect(() => {
-    if (
-      selectedUser?._id &&
-      messages.some((m) => m.senderId === selectedUser._id && !m.read)
-    ) {
+    if (selectedUser?._id && messages.some(m => m.senderId === selectedUser._id && !m.read)) {
       markMessagesAsRead(selectedUser._id);
     }
   }, [messages, selectedUser]);
 
+  // 🧠 Smart scrolling effect
   useEffect(() => {
-    const container = messageEndRef.current?.parentElement;
-    if (!container) return;
+    const wrapper = messageWrapperRef.current;
+    const isNearBottom =
+      wrapper &&
+      wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 200;
 
-    const nearBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight <
-      200;
-    if (nearBottom) {
+    if (isNearBottom && messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isTyping]);
 
+  // Always scroll to bottom when chat is opened or switched
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [selectedUser?._id, isMessagesLoading]);
+
   useEffect(() => {
     if (!socket || !selectedUser) return;
 
-    const handleTyping = ({ sender }) => setIsTyping(true);
-    const handleStopTyping = ({ sender }) => setIsTyping(false);
+    const handleTyping = () => setIsTyping(true);
+    const handleStopTyping = () => setIsTyping(false);
 
     socket.on("typing", handleTyping);
     socket.on("stopTyping", handleStopTyping);
@@ -101,60 +95,58 @@ export default function ChatContainer() {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#26203a] border-l border-[#3a3055]">
+    <div className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />
       <div
-        className={`flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 ${
+        ref={messageWrapperRef} // 👈 Attach scroll ref here
+        className={`flex-1 overflow-y-auto p-4 space-y-4 transition-all duration-200 ${
           isTyping ? "pb-12" : ""
         }`}
       >
         {messages.map((message, idx) => {
-          const isOwn = message.senderId === authUser._id;
-          const showDate =
+          const isOwnMessage = message.senderId === authUser._id;
+          const showDateSeparator =
             idx === 0 ||
-            getDateLabel(message.createdAt) !==
-              getDateLabel(messages[idx - 1].createdAt);
-
+            getDateLabel(message.createdAt) !== getDateLabel(messages[idx - 1].createdAt);
           return (
             <React.Fragment key={message._id}>
-              {showDate && (
-                <div className="w-full flex justify-center my-4">
-                  <span className="text-xs text-gray-400 px-3 py-1 rounded-full bg-[#3a3055]">
+              {showDateSeparator && (
+                <div className="w-full flex justify-center my-2">
+                  <span className="bg-base-200 px-4 py-1 rounded-full text-xs text-base-content/60 shadow">
                     {getDateLabel(message.createdAt)}
                   </span>
                 </div>
               )}
               <div
-                className={`flex gap-2 ${
-                  isOwn ? "justify-end" : "justify-start"
-                }`}
+                className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}
                 ref={idx === messages.length - 1 ? messageEndRef : null}
               >
-                {!isOwn && (
-                  <img
-                    className="w-10 h-10 rounded-full border object-cover"
-                    src={selectedUser.profilePic || "/avatar.png"}
-                    alt="avatar"
-                  />
-                )}
-                <div
-                  className={`max-w-xs sm:max-w-md px-4 py-2 rounded-xl shadow-sm ${
-                    isOwn
-                      ? "bg-gradient-to-tr from-pink-500 to-purple-500 text-white rounded-br-none"
-                      : "bg-[#3a3055] text-white border border-[#453f5d] rounded-bl-none"
-                  }`}
-                >
+                <div className="chat-image avatar">
+                  <div className="size-10 rounded-full border">
+                    <img
+                      src={
+                        isOwnMessage
+                          ? authUser.profilePic || "/avatar.png"
+                          : selectedUser.profilePic || "/avatar.png"
+                      }
+                      alt="profile pic"
+                    />
+                  </div>
+                </div>
+                <div className="chat-header mb-1">
+                  <time className="text-xs opacity-50 ml-1">
+                    {formatMessageTime(message.createdAt)}
+                  </time>
+                </div>
+                <div className="chat-bubble flex flex-col">
                   {message.image && (
                     <img
                       src={message.image}
-                      alt="attachment"
-                      className="rounded-md mb-2 max-w-[200px]"
+                      alt="Attachment"
+                      className="sm:max-w-[200px] rounded-md mb-2"
                     />
                   )}
-                  {message.text && <p className="text-sm">{message.text}</p>}
-                  <p className="text-[10px] text-right mt-1 opacity-60">
-                    {formatMessageTime(message.createdAt)}
-                  </p>
+                  {message.text && <p>{message.text}</p>}
                 </div>
               </div>
             </React.Fragment>
@@ -162,18 +154,22 @@ export default function ChatContainer() {
         })}
 
         {isTyping && (
-          <div className="flex items-start gap-2">
-            <img
-              className="w-10 h-10 rounded-full border object-cover"
-              src={selectedUser.profilePic || "/avatar.png"}
-              alt="avatar"
-            />
-            <div className="px-4 py-2 rounded-xl bg-[#3a3055] text-sm text-gray-400 shadow-sm">
-              Typing...
+          <div className="chat chat-start">
+            <div className="chat-image avatar">
+              <div className="size-10 rounded-full border">
+                <img
+                  src={selectedUser.profilePic || "/avatar.png"}
+                  alt="profile pic"
+                />
+              </div>
+            </div>
+            <div className="chat-bubble flex flex-col bg-base-300 text-base-content/60">
+              <p>Typing...</p>
             </div>
           </div>
         )}
 
+        {/* 👇 Always keep this at the bottom */}
         <div ref={messageEndRef} />
       </div>
       <MessageInput />
